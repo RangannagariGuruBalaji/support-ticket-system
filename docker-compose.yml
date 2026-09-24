@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    container_name: support_tickets_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: support_tickets
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+
+  backend:
+    build: ./backend
+    container_name: support_tickets_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: support_tickets
+      JWT_SECRET: super_secret_jwt_key_support_ticket_system_2026
+      JWT_EXPIRES_IN: 1d
+    depends_on:
+      - database
+
+volumes:
+  db_data:

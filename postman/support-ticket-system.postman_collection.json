@@ -1,0 +1,325 @@
+{
+	"info": {
+		"_postman_id": "8f3b2d1c-901a-4e2f-8a3b-1b2c3d4e5f6a",
+		"name": "Support Ticket Management System API",
+		"description": "Complete REST API Postman Collection for Support Ticket System assessment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "customerToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "agentToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ticketId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "1. Customer Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Postman Tester\",\n  \"email\": \"postman.customer@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "2. Customer Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "3. Agent Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"agent@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "4. Invalid Login (Expect 401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tickets",
+			"item": [
+				{
+					"name": "5. Create Ticket (Customer)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject\": \"Postman API Integration Test Issue\",\n  \"description\": \"Encountering issue while validating API endpoints via Postman\",\n  \"priority\": \"high\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tickets",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets"]
+						}
+					}
+				},
+				{
+					"name": "6. Get Tickets (Customer / Agent)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tickets",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets"]
+						}
+					}
+				},
+				{
+					"name": "7. Get Ticket by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tickets/{{ticketId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets", "{{ticketId}}"]
+						}
+					}
+				},
+				{
+					"name": "8. Update Ticket (Agent Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{agentToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"in_progress\",\n  \"priority\": \"high\",\n  \"assigned_to\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tickets/{{ticketId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets", "{{ticketId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Security & Forbidden Checks",
+			"item": [
+				{
+					"name": "9. Request Without Token (Expect 401)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tickets",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets"]
+						}
+					}
+				},
+				{
+					"name": "10. Customer Access Agent Endpoint (Expect 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "11. Get Ticket Comments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets", "{{ticketId}}", "comments"]
+						}
+					}
+				},
+				{
+					"name": "12. Add Comment to Ticket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{customerToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"comment\": \"Testing comment submission from Postman collection.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tickets/{{ticketId}}/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["tickets", "{{ticketId}}", "comments"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "13. Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "14. Get Users/Agents (Agent Only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{agentToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
